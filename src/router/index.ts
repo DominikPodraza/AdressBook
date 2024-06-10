@@ -4,7 +4,7 @@ import Home from "@/views/Home.vue";
 const routes = [
   { path: "/", name: "home", component: Home },
   {
-    path: "/details/:heroId",
+    path: "/details/:entryId",
     name: "details",
     component: Details,
     props: true,

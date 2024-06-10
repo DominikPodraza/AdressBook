@@ -1,39 +1,29 @@
 <template>
   <div>
-    <Menu @tab-change="getTabChange"></Menu>
-    <Form v-if="isAdded" @added="Added"></Form>
-    <Table ref="table"></Table>
+    <Form v-if="isAdded" @added="refreshData" @close="close"></Form>
+    <Table :adress-book="entries" @refresh-data="refreshData"></Table>
   </div>
 </template>
 
 <script lang="ts" setup>
 import Table from "@/components/Table.vue";
-import Form from "@/components/Form.vue";
-import Menu from "@/components/Menu.vue";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
+import { Entry, adressBookService } from "@/services/adressBookService";
 
-interface X {
-  refreshData: Function;
-}
+const { getAdressBook } = adressBookService();
 
 const isAdded = ref<boolean>(false);
-const table = ref<X | null>(null);
+const entries = ref<Entry[]>([]);
 
-function getTabChange(tab: string) {
-  if (tab === "add") {
-    isAdded.value = true;
-    return;
-  }
+function close() {
   isAdded.value = false;
 }
 
-const callRefreshDataMethod = () => {
-  if (table.value !== null) {
-    table.value.refreshData();
-  }
-};
-
-function Added() {
-  callRefreshDataMethod();
+async function refreshData() {
+  entries.value = await getAdressBook();
 }
+
+onMounted(async () => {
+  entries.value = await getAdressBook();
+});
 </script>
