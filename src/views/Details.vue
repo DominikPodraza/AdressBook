@@ -10,12 +10,80 @@
         label="Nazwisko:"
         :disable="isEdited"
       />
-      <q-input
-        filled
-        v-model="telephone"
-        label="Telefon:"
-        :disable="isEdited"
-      />
+      <q-table
+        flat
+        bordered
+        title="Numery Telefonu"
+        :rows="numberPhones"
+        :columns="columns"
+        row-key="name"
+        items-center
+      >
+        <template v-slot:top-right>
+          <q-btn color="green" icon="add" @click="" :disable="isEdited">
+            <q-menu v-model="addNumberMenuShow">
+              <q-input
+                filled
+                v-model="phoneNumber"
+                type="tel"
+                mask="### ### ###"
+                label="Numer Telefonu:"
+              />
+              <div>
+                <q-btn
+                  label="Dodaj"
+                  type="submit"
+                  color="primary"
+                  @click="addNumber()"
+                />
+                <q-btn
+                  label="Resetuj"
+                  type="reset"
+                  color="primary"
+                  flat
+                  class="q-ml-sm"
+                  @click="resetNumber()"
+                />
+                <q-btn
+                  label="Zamknij"
+                  type="close"
+                  color="primary"
+                  class="q-ml-sm"
+                  @click="addNumberMenuShow = false"
+                />
+              </div>
+            </q-menu>
+          </q-btn>
+        </template>
+        <template #body-cell-delete="scope">
+          <q-td auto-width>
+            <q-btn
+              color="red"
+              icon="delete"
+              :disable="isEdited"
+              @click.stop="deleteEntryRow(scope.row.number)"
+            />
+          </q-td>
+        </template>
+
+        <template #body-cell-isDefault="scope">
+          <q-td auto-width>
+            <q-radio
+              v-model="isDefault"
+              checked-icon="task_alt"
+              unchecked-icon="panorama_fish_eye"
+              :val="scope.row.number"
+              :disable="isEdited"
+              @click="setDefault(scope.row.number)"
+            />
+
+            <!-- <q-toggle v-model="scope.row.isDefault" /> -->
+          </q-td>
+        </template>
+
+        <q-td auto-width> </q-td>
+      </q-table>
+
       <q-input filled v-model="email" label="Email:" :disable="isEdited" />
       <q-input filled v-model="address" label="Adres:" :disable="isEdited" />
       <q-input filled v-model="city" label="Miasto:" :disable="isEdited" />
@@ -71,10 +139,15 @@
 import { Ref, ref, onMounted } from "vue";
 
 import { useRouter } from "vue-router";
-import { Entry, Status, adressBookService } from "@/services/adressBookService";
+import {
+  Entry,
+  PhoneNumber,
+  Status,
+  adressBookService,
+} from "@/services/adressBookService";
 const { getEntry, deleteEntry, editEntry } = adressBookService();
 
-import { useQuasar } from "quasar";
+import { QTableColumn, useQuasar } from "quasar";
 const $q = useQuasar();
 
 const router = useRouter();
@@ -83,22 +156,49 @@ const id = ref<number>(0);
 const nick = ref<String>("");
 const firstName = ref<String>("");
 const lastName = ref<String>("");
-const telephone = ref<String>("");
+const numberPhones = ref<PhoneNumber[]>([]);
 const email = ref<String>("");
 const address = ref<String>("");
 const city = ref<String>("");
 const postalCode = ref<String>("");
 const entry = ref<Entry>();
+const phoneNumber = ref<string>("");
+const isDefault = ref<string>("");
+const addNumberMenuShow = ref<boolean>(false);
 
 const isEdited: Ref<boolean> = ref(true);
 
+const columns: QTableColumn[] = [
+  {
+    name: "number",
+    field: "number",
+    label: "Numer Telefonu ",
+    align: "center",
+  },
+  {
+    name: "isDefault",
+    field: "isDefault",
+    label: "Domyślny",
+    align: "center",
+  },
+  {
+    name: "delete",
+    field: "delete",
+    label: "Usun",
+    align: "center",
+  },
+];
+
+async function deleteEntryRow(number: string) {
+  numberPhones.value = numberPhones.value.filter((x) => x.number !== number);
+}
 async function Edit() {
   const editStatus: Status = await editEntry(
     id.value,
     nick.value,
     firstName.value,
     lastName.value,
-    telephone.value,
+    numberPhones.value,
     email.value,
     address.value,
     city.value,
@@ -110,7 +210,7 @@ async function Edit() {
     nick: nick.value,
     firstName: firstName.value,
     lastName: lastName.value,
-    telephone: telephone.value,
+    numberPhones: numberPhones.value,
     email: email.value,
     address: address.value,
     city: city.value,
@@ -145,7 +245,7 @@ async function reset() {
     nick.value = entry.value.nick;
     firstName.value = entry.value.firstName;
     lastName.value = entry.value.lastName;
-    telephone.value = entry.value.telephone;
+    numberPhones.value = entry.value.numberPhones;
     email.value = entry.value.email;
     address.value = entry.value.address;
     city.value = entry.value.city;
@@ -192,13 +292,84 @@ onMounted(async () => {
     nick.value = entry.value.nick;
     firstName.value = entry.value.firstName;
     lastName.value = entry.value.lastName;
-    telephone.value = entry.value.telephone;
+    numberPhones.value = entry.value.numberPhones;
+    isDefault.value =
+      entry.value.numberPhones.find((x) => x.isDefault == true)?.number || "";
     email.value = entry.value.email;
     address.value = entry.value.address;
     city.value = entry.value.city;
     postalCode.value = entry.value.postalCode;
   }
 });
+
+function setDefault(number: string) {
+  for (const element of numberPhones.value) {
+    if (element.number === number) {
+      element.isDefault = true;
+      continue;
+    }
+    element.isDefault = false;
+  }
+}
+
+function addNumber() {
+  if (phoneNumber.value === "") {
+    $q.notify({
+      message: "Musisz podać numer aby go dodać!",
+      color: "red",
+    });
+    return;
+  }
+  phoneNumber.value = phoneNumber.value.replace(" ", "").replace(" ", "");
+
+  if (phoneNumber.value.length < 9) {
+    $q.notify({
+      message: "Podano za krótki numer!",
+      color: "red",
+    });
+    return;
+  }
+
+  if (phoneNumber.value.length > 10) {
+    $q.notify({
+      message: "Podano za długi numer!",
+      color: "red",
+    });
+    return;
+  }
+
+  if (
+    numberPhones.value.find((x) => x.number === phoneNumber.value) != undefined
+  ) {
+    $q.notify({
+      message: "Taki numer już istnieje!",
+      color: "red",
+    });
+    resetNumber();
+    return;
+  }
+
+  numberPhones.value.push({
+    number: phoneNumber.value,
+    isDefault: false,
+  });
+
+  if (numberPhones.value.length === 1) {
+    const firstPhoneNumber = numberPhones.value[0];
+    isDefault.value = firstPhoneNumber.number;
+    firstPhoneNumber.isDefault = true;
+  }
+  addNumberMenuShow.value = false;
+  $q.notify({
+    message: "Dodano numer",
+    color: "green",
+  });
+  resetNumber();
+}
+
+function resetNumber() {
+  phoneNumber.value = "";
+}
 </script>
 
 <style lang="scss" scoped></style>

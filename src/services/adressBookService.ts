@@ -6,11 +6,16 @@ export interface Entry {
   nick: String;
   firstName: String;
   lastName: String;
-  telephone: String;
+  numberPhones: PhoneNumber[];
   email: String;
   address: String;
   city: String;
   postalCode: String;
+}
+
+export interface PhoneNumber {
+  number: string;
+  isDefault: boolean;
 }
 
 export interface Status {
@@ -62,7 +67,7 @@ export function adressBookService(): any {
     nick: string,
     firstName: string,
     lastName: string,
-    telephone: string,
+    numberPhones: PhoneNumber[],
     address: string,
     city: string,
     email: string,
@@ -75,7 +80,7 @@ export function adressBookService(): any {
       nick: nick,
       firstName: firstName,
       lastName: lastName,
-      telephone: telephone,
+      numberPhones: numberPhones,
       address: address,
       city: city,
       email: email,
