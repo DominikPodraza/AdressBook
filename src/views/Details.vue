@@ -12,7 +12,7 @@
       />
       <q-input
         filled
-        v-model="telephone"
+        v-model="numberPhones[0].number"
         label="Telefon:"
         :disable="isEdited"
       />
@@ -71,7 +71,12 @@
 import { Ref, ref, onMounted } from "vue";
 
 import { useRouter } from "vue-router";
-import { Entry, Status, adressBookService } from "@/services/adressBookService";
+import {
+  Entry,
+  PhoneNumber,
+  Status,
+  adressBookService,
+} from "@/services/adressBookService";
 const { getEntry, deleteEntry, editEntry } = adressBookService();
 
 import { useQuasar } from "quasar";
@@ -83,7 +88,7 @@ const id = ref<number>(0);
 const nick = ref<String>("");
 const firstName = ref<String>("");
 const lastName = ref<String>("");
-const telephone = ref<String>("");
+const numberPhones = ref<PhoneNumber[]>([]);
 const email = ref<String>("");
 const address = ref<String>("");
 const city = ref<String>("");
@@ -98,7 +103,7 @@ async function Edit() {
     nick.value,
     firstName.value,
     lastName.value,
-    telephone.value,
+    numberPhones.value,
     email.value,
     address.value,
     city.value,
@@ -110,7 +115,7 @@ async function Edit() {
     nick: nick.value,
     firstName: firstName.value,
     lastName: lastName.value,
-    telephone: telephone.value,
+    numberPhones: numberPhones.value,
     email: email.value,
     address: address.value,
     city: city.value,
@@ -145,7 +150,7 @@ async function reset() {
     nick.value = entry.value.nick;
     firstName.value = entry.value.firstName;
     lastName.value = entry.value.lastName;
-    telephone.value = entry.value.telephone;
+    numberPhones.value = entry.value.numberPhones;
     email.value = entry.value.email;
     address.value = entry.value.address;
     city.value = entry.value.city;
@@ -192,7 +197,7 @@ onMounted(async () => {
     nick.value = entry.value.nick;
     firstName.value = entry.value.firstName;
     lastName.value = entry.value.lastName;
-    telephone.value = entry.value.telephone;
+    numberPhones.value = entry.value.numberPhones;
     email.value = entry.value.email;
     address.value = entry.value.address;
     city.value = entry.value.city;

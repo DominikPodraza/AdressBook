@@ -23,36 +23,7 @@
         <q-td auto-width>
           <q-btn-group>
             <q-btn color="green" icon="add" @click="dialog = true" />
-            <q-dialog v-model="dialog" @hide="reset">
-              <q-card>
-                <q-card-section class="row items-center q-gutter-sm">
-                  <q-input filled v-model="nick" label="Login:" />
-                  <q-input filled v-model="firstName" label="Imię:" />
-                  <q-input filled v-model="lastName" label="Nazwisko:" />
-                  <q-input filled v-model="telephone" label="Numer Telefonu:" />
-                  <q-input filled v-model="email" label="Email:" />
-                  <q-input filled v-model="adress" label="Adres:" />
-                  <q-input filled v-model="city" label="Miasto:" />
-                  <q-input filled v-model="postalCode" label="Kod Pocztowy:" />
-                  <div>
-                    <q-btn
-                      label="Dodaj"
-                      type="submit"
-                      color="primary"
-                      @click="add()"
-                    />
-                    <q-btn
-                      label="Resetuj"
-                      type="reset"
-                      color="primary"
-                      flat
-                      class="q-ml-sm"
-                      @click="reset()"
-                    />
-                  </div>
-                </q-card-section>
-              </q-card>
-            </q-dialog>
+            <AddDialog v-model="dialog" />
           </q-btn-group>
         </q-td>
       </template>
@@ -76,33 +47,26 @@
 </template>
 
 <script lang="ts" setup>
+import AddDialog from "./AddDialog.vue";
 import { ref } from "vue";
-import { Entry, Status, adressBookService } from "@/services/adressBookService";
+import { Entry, adressBookService } from "@/services/adressBookService";
 import { router } from "@/router";
 
-const { deleteEntry, addEntry } = adressBookService();
+const { deleteEntry } = adressBookService();
 
 import { useQuasar } from "quasar";
 const $q = useQuasar();
 
 const filter = ref<string>("");
+const dialog = ref<boolean>(false);
+
 const emit = defineEmits<{
   (e: "refreshData"): void;
 }>();
+
 const props = defineProps<{
   adressBook: Entry[];
 }>();
-
-const dialog = ref<boolean>(false);
-
-const nick = ref<string>();
-const firstName = ref<string>();
-const lastName = ref<string>();
-const telephone = ref<string>();
-const email = ref<string>();
-const adress = ref<string>();
-const city = ref<string>();
-const postalCode = ref<string>();
 
 const columns = [
   {
@@ -182,52 +146,6 @@ async function onRowClick(e: Event, entry: Entry) {
     },
   });
   e;
-}
-
-function reset() {
-  firstName.value = "";
-  lastName.value = "";
-  nick.value = "";
-  telephone.value = "";
-  email.value = "";
-  adress.value = "";
-  city.value = "";
-  postalCode.value = "";
-}
-
-async function add() {
-  const addStatus: Status = await addEntry({
-    firstName: firstName.value,
-    lastName: lastName.value,
-    nick: nick.value,
-    telephone: telephone.value,
-    email: email.value,
-    address: adress.value,
-    city: city.value,
-    postalCode: postalCode.value,
-  });
-
-  switch (addStatus.status) {
-    case 200:
-      emit("refreshData");
-      reset();
-      $q.notify({
-        message: "Dodano wpis.",
-        color: "green",
-      });
-      break;
-
-    case 400:
-      nick.value = "";
-      $q.notify({
-        message: addStatus.message as string,
-        color: "red",
-      });
-      break;
-
-    default:
-      break;
-  }
 }
 </script>
 
