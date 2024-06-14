@@ -10,6 +10,7 @@
         label="Nazwisko:"
         :disable="isEdited"
       />
+<<<<<<< HEAD
       <q-table
         flat
         bordered
@@ -84,6 +85,14 @@
         <q-td auto-width> </q-td>
       </q-table>
 
+=======
+      <q-input
+        filled
+        v-model="numberPhones[0].number"
+        label="Telefon:"
+        :disable="isEdited"
+      />
+>>>>>>> bebed691304b941b8fc6eea5e5a1894bdb4bf4fb
       <q-input filled v-model="email" label="Email:" :disable="isEdited" />
       <q-input filled v-model="address" label="Adres:" :disable="isEdited" />
       <q-input filled v-model="city" label="Miasto:" :disable="isEdited" />
@@ -293,8 +302,11 @@ onMounted(async () => {
     firstName.value = entry.value.firstName;
     lastName.value = entry.value.lastName;
     numberPhones.value = entry.value.numberPhones;
+<<<<<<< HEAD
     isDefault.value =
       entry.value.numberPhones.find((x) => x.isDefault == true)?.number || "";
+=======
+>>>>>>> bebed691304b941b8fc6eea5e5a1894bdb4bf4fb
     email.value = entry.value.email;
     address.value = entry.value.address;
     city.value = entry.value.city;

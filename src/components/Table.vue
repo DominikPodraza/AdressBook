@@ -23,7 +23,11 @@
         <q-td auto-width>
           <q-btn-group>
             <q-btn color="green" icon="add" @click="dialog = true" />
+<<<<<<< HEAD
             <AddDialog v-model="dialog" @refresh-data="refreshData" />
+=======
+            <AddDialog v-model="dialog" />
+>>>>>>> bebed691304b941b8fc6eea5e5a1894bdb4bf4fb
           </q-btn-group>
         </q-td>
       </template>
@@ -49,11 +53,15 @@
 <script lang="ts" setup>
 import AddDialog from "./AddDialog.vue";
 import { ref } from "vue";
+<<<<<<< HEAD
 import {
   Entry,
   PhoneNumber,
   adressBookService,
 } from "@/services/adressBookService";
+=======
+import { Entry, adressBookService } from "@/services/adressBookService";
+>>>>>>> bebed691304b941b8fc6eea5e5a1894bdb4bf4fb
 import { router } from "@/router";
 
 const { deleteEntry } = adressBookService();
@@ -67,9 +75,17 @@ const dialog = ref<boolean>(false);
 const emit = defineEmits<{
   (e: "refreshData"): void;
 }>();
+<<<<<<< HEAD
 
 const entries = defineModel<Entry[]>({ required: true });
 
+=======
+
+const props = defineProps<{
+  adressBook: Entry[];
+}>();
+
+>>>>>>> bebed691304b941b8fc6eea5e5a1894bdb4bf4fb
 const columns = [
   {
     name: "id",
